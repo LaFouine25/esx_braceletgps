@@ -47,10 +47,10 @@ end)
 
 -- Boucles de mise à jour
 Citizen.CreateThread(function()
-	if ESX == nil then
-		initESX()
-	end
 	while true do
+		if ESX == nil or ESX.PlayerData.job == nil then
+			initESX()
+		end
 		local temp = false;
 		for k,v in ipairs(Config.metiers) do
 			if ESX.PlayerData.job.name == v then
