@@ -6,10 +6,10 @@ montrerBlips	= false;
 autorise		= false;
 listebracelets	= {};
 PlayerLoaded	= false;
-ESX			= nil;
+ESX				= nil;
 
 -- Initialisation du FrameWork ESX.
-Citizen.CreateThread(function()
+function initESX()
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 		Citizen.Wait(1);
@@ -21,6 +21,10 @@ Citizen.CreateThread(function()
 
 	PlayerLoaded	= true;
 	ESX.PlayerData	= ESX.GetPlayerData();
+end
+
+Citizen.CreateThread(function()
+	initESX();
 end)
 
 -- Dans le cas d'un changement de boulot
@@ -43,6 +47,9 @@ end)
 
 -- Boucles de mise à jour
 Citizen.CreateThread(function()
+	if ESX == nil then
+		initESX()
+	end
 	while true do
 		local temp = false;
 		for k,v in ipairs(Config.metiers) do
@@ -64,7 +71,7 @@ end)
 function estEquipe(id)
 	local retour = false;
 	for k,v in pairs(listebracelets) do
-		if id == v then
+		if GetPlayerServerId(id) == v.source then
 			retour = true;
 			break;
 		end
@@ -81,12 +88,13 @@ Citizen.CreateThread(function()
 		if autorise then
 			for _,i in ipairs(GetActivePlayers()) do
 				ped	= GetPlayerPed(i);
-				if NetworkIsPlayerActive(i) and ped ~= monPED and estEquipe(i) then
+				if NetworkIsPlayerActive(i) and estEquipe(i) then
 					blip	= GetBlipFromEntity(ped);
 					if montrerBlips then
 						if not DoesBlipExist(blip) then
-							blip = AddBlipFromEntity(ped);
+							blip = AddBlipForEntity(ped);
 							SetBlipSprite(blip, 1);
+							SetBlipColour(blip, 1);
 							Citizen.InvokeNative(0x5FBCA48327B914DF, blip, true);
 						end
 					else
@@ -113,5 +121,5 @@ end)
 
 -- Commande /bracelets pour des/activer l'affichage des Blips
 RegisterCommand("bracelets", function(source, args, raw) --change command here
-    TriggerServerEvent("esx_braceletgps:acitvergps")
+    TriggerEvent("esx_braceletgps:acitvergps")
 end, false) --False, allow everyone to run it

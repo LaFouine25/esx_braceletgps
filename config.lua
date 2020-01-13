@@ -2,8 +2,8 @@
 Config		= {};
 
 -- Autorisation pour l'affichage des blips
-Config.metiers	= {"police"};
-Config.items	= {"braceletgps"};
+Config.metiers	= {'police'};
+Config.items	= {'braceletgps'};
 
 -- Configuration des messages d'activation
 Config.notpict	= "CHAR_CALL911";
