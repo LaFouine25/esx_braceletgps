@@ -63,7 +63,7 @@ Citizen.CreateThread(function()
 		else
 			autorise = false;
 		end
-		Citizen.Wait(5000);
+		Citizen.Wait(60000);
 	end
 end)
 
@@ -77,6 +77,24 @@ function estEquipe(id)
 		end
 	end
 
+	return retour;
+end
+
+-- Fonction de controle si joueur est LSPD
+function estLSPD(id)
+	local retour = false;
+	for k,v in pairs(listebracelets) do
+		if GetPlayerServerId(id) == v.source then
+			for w,x in pairs(Config.metiers) do
+				if v.job.name == x then
+					retour = true;
+					break;
+					break;
+				end
+			end
+		end
+	end
+	
 	return retour;
 end
 
@@ -94,7 +112,11 @@ Citizen.CreateThread(function()
 						if not DoesBlipExist(blip) then
 							blip = AddBlipForEntity(ped);
 							SetBlipSprite(blip, 1);
-							SetBlipColour(blip, 1);
+							if estLSPD(i) then
+								SetBlipColour(blip, 3);
+							else
+								SetBlipColour(blip, 1);
+							end
 							Citizen.InvokeNative(0x5FBCA48327B914DF, blip, true);
 						end
 					else
