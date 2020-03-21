@@ -12,7 +12,7 @@ ESX				= nil;
 function initESX()
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-		Citizen.Wait(1);
+		Citizen.Wait(10);
 	end
 
 	while ESX.GetPlayerData().job == nil do
@@ -63,13 +63,14 @@ Citizen.CreateThread(function()
 		else
 			autorise = false;
 		end
-		Citizen.Wait(60000);
+		Citizen.Wait(120000);
 	end
 end)
 
 -- Fonction de controle si joueurs est équipé
 function estEquipe(id)
 	local retour = false;
+	
 	for k,v in pairs(listebracelets) do
 		if GetPlayerServerId(id) == v.source then
 			retour = true;
@@ -85,9 +86,13 @@ function estLSPD(id)
 	local retour = false;
 	for k,v in pairs(listebracelets) do
 		if GetPlayerServerId(id) == v.source then
-			for w,x in pairs(Config.metiers) do
+			for w, x in pairs(Config.metiers) do
 				if v.job.name == x then
-					retour = true;
+					if v.job.name == ESX.PlayerData.job.name then
+						retour = 1;
+					else
+						retour = 2;
+					end
 					break;
 					break;
 				end
@@ -112,8 +117,10 @@ Citizen.CreateThread(function()
 						if not DoesBlipExist(blip) then
 							blip = AddBlipForEntity(ped);
 							SetBlipSprite(blip, 1);
-							if estLSPD(i) then
+							if estLSPD(i) == 1 then
 								SetBlipColour(blip, 3);
+							elseif estLSPD(i) == 2 then
+								SetBlipColour(blip, 2);
 							else
 								SetBlipColour(blip, 1);
 							end
@@ -122,6 +129,9 @@ Citizen.CreateThread(function()
 					else
 						RemoveBlip(blip);
 					end
+				else
+					blip = GetBlipFromEntity(ped);
+					RemoveBlip(blip);
 				end
 			end
 		else
