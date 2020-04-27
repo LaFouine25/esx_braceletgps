@@ -53,7 +53,7 @@ Citizen.CreateThread(function()
 		end
 		local temp = false;
 		for k,v in ipairs(Config.metiers) do
-			if ESX.PlayerData.job.name == v then
+			if ESX.PlayerData.job.name == v and ESX.PlayerData.job.grade ~= 99 then
 				temp = true;
 			end
 		end
@@ -120,7 +120,15 @@ Citizen.CreateThread(function()
 							if estLSPD(i) == 1 then
 								SetBlipColour(blip, 3);
 							elseif estLSPD(i) == 2 then
-								SetBlipColour(blip, 2);
+								if Config.affall then
+									SetBlipColour(blip, 2); -- Vert
+								else
+									if Config.hidall then
+										RemoveBlip(blip);
+									else
+										SetBlipColour(blip, 1); -- Rouge
+									end
+								end
 							else
 								SetBlipColour(blip, 1);
 							end
