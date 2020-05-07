@@ -7,6 +7,10 @@ Config.items	= {'braceletgps'};
 Config.affall	= false;	-- On affiche aussi les autres métiers autorisé en couleur AUTRE
 Config.hidall	= true;		-- Utilse si Config.affall == false Le blip est soit affiché en rouge, soit pas affiché
 
+-- Configuration pour le retrait des bracelets
+Config.ctrlretrait	= false;
+Config.addrwebhook	= "";
+
 -- Configuration des messages d'activation
 Config.notpict	= "CHAR_CALL911";
 Config.nottitre= "MyCity GPS.";

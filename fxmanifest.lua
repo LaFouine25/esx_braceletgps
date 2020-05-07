@@ -1,8 +1,12 @@
-resource_manifest_version '44febabe-d386-4d18-afbe-5e627f4af937'
+fx_version 'bodacious'
+games { 'gta5' }
 
 description 'ESX Bracelet GPS - MyCitYRP'
+author 'Alex B. (Fouinette)'
 
-version '1.1.0'
+version '1.2.0'
+
+
 
 client_scripts {
   'config.lua',
