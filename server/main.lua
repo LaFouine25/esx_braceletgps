@@ -77,16 +77,45 @@ AddEventHandler('esx_braceletgps:srv_updateliste', function()
 	TriggerClientEvent('esx_braceletgps:majbracelets', sPlayer.source, Porteur);
 end)
 
+-- Retrait du bracelet de la cible.
+RegisterNetEvent('esx_braceletgps:coupebracelet')
+AddEventHandler('esx_braceletgps:coupebracelet', function(target)
+	local tPlayer	= ESX.GetPlayerFromId(target);
+	local xPlayer	= ESX.GetPlayerFromId(source);
+	tPlayer.removeInventoryItem('braceletgps', 1);
+	xPlayer.showNotification('Retrait avec succès du Bracelet GPS');
+end)
+
 ESX.RegisterUsableItem('braceletgps', function(source)
-	local xPlayer = ESX.GetPlayerFromId(source);
-	local data = {};
+	local xPlayer	= ESX.GetPlayerFromId(source);
+	local data		= {};
 	
-	data.message = "ALERTE BRACELET GPS";
-	-- Envoi du message à tous les metiers autorisés.
-	for _,v in ipairs(Config.metiers) do
-		data.number = v;
-		TriggerClientEvent('esx_addons_gcphone:call', source, data);
+	if xPlayer ~= nil then
+		data.message = "ALERTE BRACELET GPS";
+		-- Envoi du message à tous les metiers autorisés.
+		for _,v in ipairs(Config.metiers) do
+			data.number = v;
+			TriggerClientEvent('esx_addons_gcphone:call', xPlayer.source, data);
+		end
+		TriggerEvent('Fouinette_srv:logs', 'Envoi alerte Breacelet GPS par '.. tostring(xPlayer.identifier));
+		AlerteDiscord("Utilisation du Bracelet GPS par " .. xPlayer.getName());
 	end
-	TriggerEvent('Fouinette_srv:logs', 'Envoi alerte Breacelt GPS par '.. tostring(xPlayer.identifier));
-	AlerteDiscord("Utilisation du Bracelet GPS par " .. xPlayer.getName());
+end)
+
+ESX.RegisterUsableItem('coupebracelet', function(source)
+	local xPlayer	= ESX.GetPlayerFromId(source);
+	local data		= {};
+	
+	if xPlayer ~= nil then
+		data.message = "RETRAIT DU BRACELET GPS";
+		-- Envoi du message à tous les metiers autorisés.
+		for _,v in ipairs(Config.metiers) do
+			data.number = v;
+			TriggerClientEvent('esx_addons_gcphone:call', xPlayer.source, data);
+		end
+		xPlayer.removeInventoryItem('braceletgps', 1);
+		TriggerClientEvent('esx_braceletgps:utilisecoupe', xPlayer.source);
+		TriggerEvent('Fouinette_srv:logs', 'Tentative de RETRAIT Bracelet GPS par '.. tostring(xPlayer.identifier));
+		AlerteDiscord("Tentative de RETRAIT d'un Bracelet GPS par " .. xPlayer.getName());
+	end
 end)

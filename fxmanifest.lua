@@ -4,7 +4,7 @@ games { 'gta5' }
 description 'ESX Bracelet GPS - MyCitYRP'
 author 'Alex B. (Fouinette)'
 
-version '1.2.0'
+version '1.3.2'
 
 
 

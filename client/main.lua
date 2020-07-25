@@ -155,7 +155,18 @@ AddEventHandler('esx_braceletgps:acitvergps', function()
 	if montrerBlips then
 		ESX.ShowAdvancedNotification(Config.nottitre, Config.notsujet, Config.notmess1, Config.notpict, 1);
 	else
-		ESX.ShowAdvancedNotification(Config.nottitre, Config.notsujet, Config.notmess2, Config.notpict, 1)
+		ESX.ShowAdvancedNotification(Config.nottitre, Config.notsujet, Config.notmess2, Config.notpict, 1);
+	end
+end)
+
+RegisterNetEvent('esx_braceletgps:utilisecoupe');
+AddEventHandler('esx_braceletgps:utilisecoupe', function()
+	local target, distance	= ESX.Game.GetClosestPlayer();
+	if target ~= -1 and distance < 3.0 then
+		-- On peut couper le bracelet
+		TriggerServerEvent('esx_braceletgps:coupebracelet', GetPlayerServerId(target)) ;
+	else
+		ESX.ShowNotificcation("Il n'y a personne à portée de l'appareil.");
 	end
 end)
 
