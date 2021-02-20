@@ -1,6 +1,6 @@
 --================================
 -- Développé par Fouinette
--- Pour le projet MyCitY RP
+-- Pour le projet Reborn RP
 --================================
 ESX		= nil;
 Porteur	= {};
@@ -20,7 +20,11 @@ Citizen.CreateThread(function()
 
 			for k,v in ipairs(Config.items) do
 				if xPlayer.getInventoryItem(v).count > 0 then
-					table.insert(Porteur, xPlayer);
+					estLSPD = false;
+					if xPlayer.job.name == "police" then
+						estLSPD = true;
+					end
+					table.insert(Porteur, {xPlayer.getCoords(false), estLSPD});
 					break;
 				end
 			end
@@ -60,12 +64,14 @@ end
 
 -- Mise à jour de la liste lors d'une déco/reco
 AddEventHandler("playerDropped",function(reason)
-	local source	= source;
-	local xPlayer	= ESX.GetPlayerFromId(source);
-	for i=1, #Porteur, 1 do
-		if Porteur[i].identifier == xPlayer.identifier then
-			table.remove(Porteur, i);
-			break;
+	local _source	= source;
+	local xPlayer	= ESX.GetPlayerFromId(_source);
+	if xPlayer ~= nil then
+		for i=1, #Porteur, 1 do
+			if Porteur[i].identifier == xPlayer.identifier then
+				table.remove(Porteur, i);
+				break;
+			end
 		end
 	end
 end)
@@ -102,20 +108,26 @@ ESX.RegisterUsableItem('braceletgps', function(source)
 	end
 end)
 
+ESX.RegisterUsableItem('braceletgpsdiscret', function(source)
+	local xPlayer	= ESX.GetPlayerFromId(source);
+	local data		= {};
+	
+	if xPlayer ~= nil then
+		xPlayer.removeInventoryItem('braceletgpsdiscret', 1)
+
+		TriggerClientEvent('cd_playerhud:status:add', source, 'hunger', 1)
+		TriggerClientEvent('cd_playerhud:status:remove', source, 'thirst', 5)
+		TriggerClientEvent('esx_basicneeds:onEat', source)
+		TriggerClientEvent('esx:showNotification', source, '~r~Aaahhh~s~ Je crois que je viens d\'en avaler une de travers !!!')
+	end
+end)
+
 ESX.RegisterUsableItem('coupebracelet', function(source)
 	local xPlayer	= ESX.GetPlayerFromId(source);
 	local data		= {};
 	
 	if xPlayer ~= nil then
 		data.message = "RETRAIT DU BRACELET GPS";
-		-- Envoi du message à tous les metiers autorisés.
-		for _,v in ipairs(Config.metiers) do
-			data.number = v;
-			TriggerClientEvent('esx_addons_gcphone:call', xPlayer.source, data);
-		end
-		xPlayer.removeInventoryItem('braceletgps', 1);
 		TriggerClientEvent('esx_braceletgps:utilisecoupe', xPlayer.source);
-		TriggerEvent('Fouinette_srv:logs', 'Tentative de RETRAIT Bracelet GPS par '.. tostring(xPlayer.identifier));
-		AlerteDiscord("Tentative de RETRAIT d'un Bracelet GPS par " .. xPlayer.getName());
 	end
 end)

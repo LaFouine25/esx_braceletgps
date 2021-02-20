@@ -1,10 +1,11 @@
 --================================
 -- Développé par Fouinette
--- Pour le projet MyCitY RP
+-- Pour le projet Reborn RP
 --================================
 montrerBlips	= false;
 autorise		= false;
 listebracelets	= {};
+listeBlips		= {};
 PlayerLoaded	= false;
 ESX				= nil;
 
@@ -30,6 +31,10 @@ end)
 -- Dans le cas d'un changement de boulot
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
+	while ESX == nil do
+		Citizen.Wait(0)
+	end
+	
 	ESX.PlayerData = xPlayer
 	PlayerLoaded = true
 end)
@@ -37,6 +42,11 @@ end)
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(job)
 	ESX.PlayerData.job = job
+end)
+
+RegisterNetEvent('esx:setJob2')
+AddEventHandler('esx:setJob2', function(job)
+	ESX.PlayerData.job2 = job
 end)
 
 -- Trigger mise à jour liste des joueurs avec bracelets
@@ -53,7 +63,7 @@ Citizen.CreateThread(function()
 		end
 		local temp = false;
 		for k,v in ipairs(Config.metiers) do
-			if ESX.PlayerData.job.name == v and ESX.PlayerData.job.grade ~= 99 then
+			if (ESX.PlayerData.job.name == v and ESX.PlayerData.job.grade ~= 99) or (ESX.PlayerData.job2.name == v and ESX.PlayerData.job2.grade ~= 99) then
 				temp = true;
 			end
 		end
@@ -88,7 +98,7 @@ function estLSPD(id)
 		if GetPlayerServerId(id) == v.source then
 			for w, x in pairs(Config.metiers) do
 				if v.job.name == x then
-					if v.job.name == ESX.PlayerData.job.name then
+					if v.job.name == ESX.PlayerData.job.name or v.job.name == ESX.PlayerData.job2.name then
 						retour = 1;
 					else
 						retour = 2;
@@ -105,45 +115,32 @@ end
 
 -- Boucle principale d'affichage des blips des bracelets.
 Citizen.CreateThread(function()
-	local monPED	= GetPlayerPed(-1);
+	-- Boucle Principale.
 	while true do
-		Citizen.Wait(10);
+		Citizen.Wait(30000);
+		-- Dans tous les cas, on supprime les Blips existants
+		for _,blip in pairs(listeBlips) do
+			RemoveBlip(blip);
+		end
+		listeBlips = {};
+		
 		if autorise then
-			for _,i in ipairs(GetActivePlayers()) do
-				ped	= GetPlayerPed(i);
-				if NetworkIsPlayerActive(i) and estEquipe(i) then
-					blip	= GetBlipFromEntity(ped);
-					if montrerBlips then
-						if not DoesBlipExist(blip) then
-							blip = AddBlipForEntity(ped);
-							SetBlipSprite(blip, 1);
-							if estLSPD(i) == 1 then
-								SetBlipColour(blip, 3);
-							elseif estLSPD(i) == 2 then
-								if Config.affall then
-									SetBlipColour(blip, 2); -- Vert
-								else
-									if Config.hidall then
-										RemoveBlip(blip);
-									else
-										SetBlipColour(blip, 1); -- Rouge
-									end
-								end
-							else
-								SetBlipColour(blip, 1);
-							end
-							Citizen.InvokeNative(0x5FBCA48327B914DF, blip, true);
-						end
+			for _, coords in pairs(listebracelets) do
+				-- On parcour uniquement la liste des joueurs AYANT un bracelet.
+				if montrerBlips then
+					-- Le joueur souhaite afficher les blips
+					-- On fait donc les calculs.
+					blip = AddBlipForCoord(coords[1].x, coords[1].y, coords[1].z);
+					SetBlipSprite(blip, 1);
+					if coords[2] then
+						SetBlipColour(blip, 3);
 					else
-						RemoveBlip(blip);
+						SetBlipColour(blip, 1); -- Rouge
 					end
-				else
-					blip = GetBlipFromEntity(ped);
-					RemoveBlip(blip);
+					Citizen.InvokeNative(0x5FBCA48327B914DF, blip, true);
+					table.insert(listeBlips, blip);
 				end
 			end
-		else
-			Citizen.Wait(500);
 		end
 	end
 end)
@@ -162,9 +159,18 @@ end)
 RegisterNetEvent('esx_braceletgps:utilisecoupe');
 AddEventHandler('esx_braceletgps:utilisecoupe', function()
 	local target, distance	= ESX.Game.GetClosestPlayer();
+	local xPlayer = GetPlayerServerId(target);
 	if target ~= -1 and distance < 3.0 then
 		-- On peut couper le bracelet
-		TriggerServerEvent('esx_braceletgps:coupebracelet', GetPlayerServerId(target)) ;
+		TriggerServerEvent('esx_braceletgps:coupebracelet', GetPlayerServerId(target));
+		
+		for _,v in ipairs(Config.metiers) do
+			data.number = v;
+			TriggerClientEvent('esx_addons_gcphone:call', xPlayer.source, data);
+		end
+		xPlayer.removeInventoryItem('braceletgps', 1);
+		TriggerEvent('Fouinette_srv:logs', 'Tentative de RETRAIT Bracelet GPS par '.. tostring(xPlayer.identifier));
+		AlerteDiscord("Tentative de RETRAIT d'un Bracelet GPS par " .. xPlayer.getName());
 	else
 		ESX.ShowNotificcation("Il n'y a personne à portée de l'appareil.");
 	end
