@@ -1,5 +1,5 @@
 # esx_braceletgps
- Projet de bracelet judiciaire pour serveur FiveM RP sous ESX 1.0 - Projet lancé pour le serveur RebornRP.
+ Projet de bracelet judiciaire pour serveur FiveM RP sous ESX 1.0.
 
 # Installation
 Pour installer esx_braceletgps il suffit de copier le répertoire esx_braceletgps dans le répertoire "resources\[esx]" de votre serveur FiveM
