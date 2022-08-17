@@ -1,12 +1,10 @@
 fx_version 'bodacious'
 games { 'gta5' }
 
-description 'ESX Bracelet GPS - MyCitYRP'
+description 'ESX Bracelet GPS - EmpYre'
 author 'Alex B. (Fouinette)'
 
-version '1.3.2'
-
-
+version '1.4.0'
 
 client_scripts {
   'config.lua',

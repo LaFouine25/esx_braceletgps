@@ -1,6 +1,6 @@
 --================================
 -- Développé par Fouinette
--- Pour le projet Reborn RP
+-- Pour le projet EmpYre
 --================================
 ESX		= nil;
 Porteur	= {};
@@ -9,6 +9,25 @@ OldPor	= {};
 -- Initialisation du FrameWork
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+-- Fonctions locales
+local jobTrue = function(job)
+	for _, jobliste in ipairs(Config.metiers) do
+		if jobliste == job then
+			return true
+		end
+	end
+	return false;
+end
+
+local notification = function(message, source)
+	if Config.typealerte == "basic" then
+		TriggerClientEvent('esx:showNotification', source, message);
+	elseif Config.typealerte == "mythic" then
+		TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'success', text = message, length = 10000})
+	end
+end
+
+-- Boucle de contrôle
 Citizen.CreateThread(function()
 	while true do
 		local xPlayers	= ESX.GetPlayers();
@@ -20,11 +39,15 @@ Citizen.CreateThread(function()
 
 			for k,v in ipairs(Config.items) do
 				if xPlayer.getInventoryItem(v).count > 0 then
-					estLSPD = false;
-					if xPlayer.job.name == "police" then
-						estLSPD = true;
-					end
-					table.insert(Porteur, {xPlayer.getCoords(false), estLSPD});
+					estLSPD = jobTrue(xPlayer.job.name);
+					local tmpplayer = {
+						coords = xPlayer.getCoords(false),
+						identifier = xPlayer.identifier,
+						source = xPlayer.source,
+						estLSPD = estLSPD,
+						job = xPlayer.job
+					}
+					table.insert(Porteur, xPlayer);
 					break;
 				end
 			end
@@ -32,7 +55,7 @@ Citizen.CreateThread(function()
 				
 		if Config.ctrlretrait and Config.addrwebhook ~= "" then
 			for i=1, #OldPor, 1 do
-				if OldPor[i] == Porteur[i] then
+				if OldPor[i].identifier == Porteur[i].identifier then
 					-- On ne fait rien, c'est le même joueur
 				else
 					-- On parcours la table Porteur pour voir si OldPor est dedans mais ailleurs.
@@ -89,7 +112,7 @@ AddEventHandler('esx_braceletgps:coupebracelet', function(target)
 	local tPlayer	= ESX.GetPlayerFromId(target);
 	local xPlayer	= ESX.GetPlayerFromId(source);
 	tPlayer.removeInventoryItem('braceletgps', 1);
-	xPlayer.showNotification('Retrait avec succès du Bracelet GPS');
+	notification("Vous avez retiré le bracelet GPS de " .. tPlayer.name, xPlayer.source);
 end)
 
 ESX.RegisterUsableItem('braceletgps', function(source)
@@ -115,19 +138,17 @@ ESX.RegisterUsableItem('braceletgpsdiscret', function(source)
 	if xPlayer ~= nil then
 		xPlayer.removeInventoryItem('braceletgpsdiscret', 1)
 
-		TriggerClientEvent('cd_playerhud:status:add', source, 'hunger', 1)
-		TriggerClientEvent('cd_playerhud:status:remove', source, 'thirst', 5)
-		TriggerClientEvent('esx_basicneeds:onEat', source)
-		TriggerClientEvent('esx:showNotification', source, '~r~Aaahhh~s~ Je crois que je viens d\'en avaler une de travers !!!')
+		-- A modifier pour quelque chose de générique.
+		TriggerClientEvent('cd_playerhud:status:add', source, 'hunger', 1);
+		TriggerClientEvent('cd_playerhud:status:remove', source, 'thirst', 5);
+		TriggerClientEvent('esx_basicneeds:onEat', source);
+		notification('~r~Aaahhh~s~ Je crois que je viens d\'en avaler une de travers !!!', source);
 	end
 end)
 
 ESX.RegisterUsableItem('coupebracelet', function(source)
 	local xPlayer	= ESX.GetPlayerFromId(source);
-	local data		= {};
-	
 	if xPlayer ~= nil then
-		data.message = "RETRAIT DU BRACELET GPS";
 		TriggerClientEvent('esx_braceletgps:utilisecoupe', xPlayer.source);
 	end
 end)

@@ -2,7 +2,7 @@
 Config		= {};
 
 -- Autorisation pour l'affichage des blips
-Config.metiers	= {'police'};
+Config.metiers	= {'police', 'gouv', 'usss'};
 Config.items	= {'braceletgps'};
 Config.affall	= true;		-- On affiche aussi les autres métiers autorisé en couleur AUTRE
 Config.hidall	= false;	-- Utilse si Config.affall == false Le blip est soit affiché en rouge, soit pas affiché
@@ -14,7 +14,9 @@ Config.addrwebhook	= "";
 
 -- Configuration des messages d'activation
 Config.notpict	= "CHAR_CALL911";
-Config.nottitre	= "Tracker GPS.";
-Config.notsujet	= "LSPD Technique.";
-Config.notmess1	= "Activation de la localisation des Bracelets GPS.";
-Config.notmess2	= "Désactivation de la localisation des Bracelets GSP.";
+Config.nottitre	= "Tracker GNSS.";
+Config.notsujet	= "GNSS Technique.";
+Config.notmess1	= "Activation de l'affichage des Bracelets GPS.";
+Config.notmess2	= "Désactivation de l'affichage des Bracelets GSP.";
+
+Config.typealerte = "mythic"; -- basic = message GTA via ESX, mythic = Mythic Notif, embed = Message Avancé GTA via ESX.
